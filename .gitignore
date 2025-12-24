@@ -29,8 +29,6 @@ go.work
 
 # Database files
 *.db
-*.sqlite
-*.sqlite3
 
 # Logs
 *.log
