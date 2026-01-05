@@ -10,9 +10,9 @@ import (
 	"syscall"
 	"time"
 
-	"simple_bank/api/handler"
 	"simple_bank/config"
 	"simple_bank/internal/database"
+	"simple_bank/internal/handler"
 	"simple_bank/internal/models"
 	"simple_bank/internal/repository"
 	"simple_bank/internal/service"

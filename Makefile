@@ -1,4 +1,8 @@
-.PHONY: postgres createdb dropdb migrateup migratedown
+.PHONY: up down postgres createdb dropdb migrateup migratedown
+up:
+	docker-compose up -d --build
+down:
+	docker-compose down
 postgres:
 	docker run --name postgres12 -p 5432:5432 -e POSTGRES_USER=root -e POSTGRES_PASSWORD=root -d postgres:12-alpine
 pgadmin:
@@ -14,3 +18,4 @@ migratedown:
 
 
 ##test
+

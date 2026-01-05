@@ -31,13 +31,13 @@ func NewAccountHandler(router *gin.RouterGroup,
 		accounts.GET("/owner/:owner", handler.GetAccountsByOwner)
 
 		// Dynamic routes with specific names
-		accounts.GET("/:account_id", handler.GetAccount)       // Changed from :id to :account_id
-		accounts.PUT("/:account_id", handler.UpdateAccount)    // Changed from :id to :account_id
-		accounts.DELETE("/:account_id", handler.DeleteAccount) // Changed from :id to :account_id
+		accounts.GET("/:id", handler.GetAccount)
+		accounts.PUT("/:id", handler.UpdateAccount)
+		accounts.DELETE("/:id", handler.DeleteAccount)
 
 		// Transfer routes (use different param name)
-		accounts.POST("/:from_account_id/transfer", handler.CreateTransfer)
-		accounts.GET("/:account_id/transfers", handler.ListTransfers)
+		accounts.POST("/:id/transfer", handler.CreateTransfer)
+		accounts.GET("/:id/transfers", handler.ListTransfers)
 	}
 
 	transfers := router.Group("/transfers")
