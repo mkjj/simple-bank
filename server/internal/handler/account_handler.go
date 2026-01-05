@@ -4,23 +4,19 @@ import (
 	"net/http"
 	"strconv"
 
-	"simple_bank/internal/service"
+	"simple_bank/server/internal/services"
 
 	"github.com/gin-gonic/gin"
 )
 
-type AccountHandler struct {
-	accountService  service.AccountService
-	transferService service.TransferService
+type ServicesHandler struct {
+	services *services.Services
 }
 
-func NewAccountHandler(router *gin.RouterGroup,
-	accountService service.AccountService,
-	transferService service.TransferService) {
+func NewServicesHandler(router *gin.RouterGroup, services *services.Services) {
 
-	handler := &AccountHandler{
-		accountService:  accountService,
-		transferService: transferService,
+	handler := &ServicesHandler{
+		services: services,
 	}
 
 	accounts := router.Group("/accounts")
@@ -71,14 +67,14 @@ type CreateTransferRequest struct {
 }
 
 // Handler methods
-func (h *AccountHandler) CreateAccount(c *gin.Context) {
+func (h *ServicesHandler) CreateAccount(c *gin.Context) {
 	var req CreateAccountRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	account, err := h.accountService.CreateAccount(c.Request.Context(),
+	account, err := h.services.Account.CreateAccount(c.Request.Context(),
 		req.Owner, req.Currency, req.InitialBalance)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -94,14 +90,14 @@ func (h *AccountHandler) CreateAccount(c *gin.Context) {
 	})
 }
 
-func (h *AccountHandler) GetAccount(c *gin.Context) {
+func (h *ServicesHandler) GetAccount(c *gin.Context) {
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid account ID"})
 		return
 	}
 
-	account, err := h.accountService.GetAccount(c.Request.Context(), id)
+	account, err := h.services.Account.GetAccount(c.Request.Context(), id)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Account not found"})
 		return
@@ -110,11 +106,11 @@ func (h *AccountHandler) GetAccount(c *gin.Context) {
 	c.JSON(http.StatusOK, account)
 }
 
-func (h *AccountHandler) ListAccounts(c *gin.Context) {
+func (h *ServicesHandler) ListAccounts(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "10"))
 
-	accounts, err := h.accountService.ListAccounts(c.Request.Context(), page, pageSize)
+	accounts, err := h.services.Account.ListAccounts(c.Request.Context(), page, pageSize)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -127,12 +123,12 @@ func (h *AccountHandler) ListAccounts(c *gin.Context) {
 	})
 }
 
-func (h *AccountHandler) GetAccountsByOwner(c *gin.Context) {
+func (h *ServicesHandler) GetAccountsByOwner(c *gin.Context) {
 	owner := c.Param("owner")
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "10"))
 
-	accounts, err := h.accountService.GetAccountsByOwner(c.Request.Context(), owner, page, pageSize)
+	accounts, err := h.services.Account.GetAccountsByOwner(c.Request.Context(), owner, page, pageSize)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -146,7 +142,7 @@ func (h *AccountHandler) GetAccountsByOwner(c *gin.Context) {
 	})
 }
 
-func (h *AccountHandler) UpdateAccount(c *gin.Context) {
+func (h *ServicesHandler) UpdateAccount(c *gin.Context) {
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid account ID"})
@@ -159,7 +155,7 @@ func (h *AccountHandler) UpdateAccount(c *gin.Context) {
 		return
 	}
 
-	account, err := h.accountService.UpdateAccount(c.Request.Context(), id, req.Balance)
+	account, err := h.services.Account.UpdateAccount(c.Request.Context(), id, req.Balance)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -168,14 +164,14 @@ func (h *AccountHandler) UpdateAccount(c *gin.Context) {
 	c.JSON(http.StatusOK, account)
 }
 
-func (h *AccountHandler) DeleteAccount(c *gin.Context) {
+func (h *ServicesHandler) DeleteAccount(c *gin.Context) {
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid account ID"})
 		return
 	}
 
-	err = h.accountService.DeleteAccount(c.Request.Context(), id)
+	err = h.services.Account.DeleteAccount(c.Request.Context(), id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -184,7 +180,7 @@ func (h *AccountHandler) DeleteAccount(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Account deleted successfully"})
 }
 
-func (h *AccountHandler) CreateTransfer(c *gin.Context) {
+func (h *ServicesHandler) CreateTransfer(c *gin.Context) {
 	var req CreateTransferRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -197,7 +193,7 @@ func (h *AccountHandler) CreateTransfer(c *gin.Context) {
 		return
 	}
 
-	transfer, err := h.transferService.CreateTransfer(c.Request.Context(), fromAccountID, req.ToAccountID, req.Amount)
+	transfer, err := h.services.Transfer.CreateTransfer(c.Request.Context(), fromAccountID, req.ToAccountID, req.Amount)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -206,14 +202,14 @@ func (h *AccountHandler) CreateTransfer(c *gin.Context) {
 	c.JSON(http.StatusCreated, transfer)
 }
 
-func (h *AccountHandler) GetTransfer(c *gin.Context) {
+func (h *ServicesHandler) GetTransfer(c *gin.Context) {
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid transfer ID"})
 		return
 	}
 
-	transfer, err := h.transferService.GetTransfer(c.Request.Context(), id)
+	transfer, err := h.services.Transfer.GetTransfer(c.Request.Context(), id)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Transfer not found"})
 		return
@@ -222,7 +218,7 @@ func (h *AccountHandler) GetTransfer(c *gin.Context) {
 	c.JSON(http.StatusOK, transfer)
 }
 
-func (h *AccountHandler) ListTransfers(c *gin.Context) {
+func (h *ServicesHandler) ListTransfers(c *gin.Context) {
 	accountID, err := strconv.ParseInt(c.Param("account_id"), 10, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid account ID"})
@@ -232,7 +228,7 @@ func (h *AccountHandler) ListTransfers(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "10"))
 
-	transfers, err := h.transferService.ListTransfers(c.Request.Context(), accountID, page, pageSize)
+	transfers, err := h.services.Transfer.ListTransfers(c.Request.Context(), accountID, page, pageSize)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

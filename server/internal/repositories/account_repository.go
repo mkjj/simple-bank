@@ -1,7 +1,7 @@
-package repository
+package repositories
 
 import (
-	"simple_bank/internal/models"
+	"simple_bank/server/internal/models"
 	"time"
 
 	"gorm.io/gorm"

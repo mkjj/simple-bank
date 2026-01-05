@@ -1,10 +1,10 @@
-package service
+package services
 
 import (
 	"context"
 	"errors"
-	"simple_bank/internal/models"
-	"simple_bank/internal/repository"
+	"simple_bank/server/internal/models"
+	"simple_bank/server/internal/repositories"
 )
 
 type AccountService interface {
@@ -17,10 +17,10 @@ type AccountService interface {
 }
 
 type accountService struct {
-	repo *repository.Repository
+	repo *repositories.Repository
 }
 
-func NewAccountService(repo *repository.Repository) AccountService {
+func NewAccountService(repo *repositories.Repository) AccountService {
 	return &accountService{
 		repo: repo,
 	}

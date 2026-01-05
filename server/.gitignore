@@ -16,6 +16,7 @@ node_modules/
 
 # Go workspace file
 go.work
+go.sum
 
 # IDE and editor files
 .vscode/

@@ -1,11 +1,11 @@
-package service
+package services
 
 import (
 	"context"
 	"errors"
 	"fmt"
-	"simple_bank/internal/models"
-	"simple_bank/internal/repository"
+	"simple_bank/server/internal/models"
+	"simple_bank/server/internal/repositories"
 	"time"
 
 	"gorm.io/gorm"
@@ -19,11 +19,11 @@ type TransferService interface {
 }
 
 type transferService struct {
-	repo *repository.Repository
+	repo *repositories.Repository
 	db   *gorm.DB
 }
 
-func NewTransferService(repo *repository.Repository, db *gorm.DB) TransferService {
+func NewTransferService(repo *repositories.Repository, db *gorm.DB) TransferService {
 	return &transferService{
 		repo: repo,
 		db:   db,
